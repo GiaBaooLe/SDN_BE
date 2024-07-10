@@ -3,19 +3,19 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 
 // Create a new blog post
 const createBlog = asyncHandler(async (req, res) => {
-  const { title, image, description } = req.body;
+  const { title, image, description, relatedProducts } = req.body;
 
   if (!title || !image || !description) {
     return res.status(400).json({ error: "Title, image, and description are required" });
   }
 
-  const blog = await Blog.create({ title, image, description });
+  const blog = await Blog.create({ title, image, description, relatedProducts });
   res.status(201).json(blog);
 });
 
 // Update an existing blog post
 const updateBlog = asyncHandler(async (req, res) => {
-  const { title, image, description } = req.body;
+  const { title, image, description, relatedProducts } = req.body;
   const { blogId } = req.params;
 
   const blog = await Blog.findById(blogId);
@@ -27,6 +27,7 @@ const updateBlog = asyncHandler(async (req, res) => {
   if (title) blog.title = title;
   if (image) blog.image = image;
   if (description) blog.description = description;
+  if (relatedProducts) blog.relatedProducts = relatedProducts;
 
   const updatedBlog = await blog.save();
   res.json(updatedBlog);
@@ -47,7 +48,7 @@ const listBlogs = asyncHandler(async (req, res) => {
 
 // Read a single blog post by ID
 const readBlog = asyncHandler(async (req, res) => {
-  const blog = await Blog.findById(req.params.blogId);
+  const blog = await Blog.findById(req.params.blogId).populate('relatedProducts');
   if (!blog) return res.status(404).json({ error: "Blog post not found" });
   res.json(blog);
 });

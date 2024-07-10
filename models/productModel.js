@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
+// Define reviewSchema
 const reviewSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -15,6 +16,7 @@ const reviewSchema = mongoose.Schema(
   { timestamps: true }
 );
 
+// Define productSchema
 const productSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -32,5 +34,9 @@ const productSchema = mongoose.Schema(
   { timestamps: true }
 );
 
+// Create Product model
 const Product = mongoose.model("Product", productSchema);
+
+// Export reviewSchema and Product model
+
 export default Product;

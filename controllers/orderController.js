@@ -78,6 +78,32 @@ const createOrder = async (req, res) => {
   }
 };
 
+// controllers/orderController.js
+
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (order) {
+      order.status = status;
+      if (status === 'Delivered') {
+        order.isDelivered = true;
+        order.deliveredAt = Date.now();
+      }
+      const updatedOrder = await order.save();
+      res.json(updatedOrder);
+    } else {
+      res.status(404);
+      throw new Error("Order not found");
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
 const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find({}).populate("user", "id username");
@@ -86,6 +112,7 @@ const getAllOrders = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const getUserOrders = async (req, res) => {
   try {
@@ -115,7 +142,7 @@ const calculateTotalSales = async (req, res) => {
   }
 };
 
-const calcualteTotalSalesByDate = async (req, res) => {
+const calculateTotalSalesByDate = async (req, res) => {
   try {
     const salesByDate = await Order.aggregate([
       {
@@ -203,11 +230,12 @@ const markOrderAsDelivered = async (req, res) => {
 
 export {
   createOrder,
+  updateOrderStatus,
   getAllOrders,
   getUserOrders,
   countTotalOrders,
   calculateTotalSales,
-  calcualteTotalSalesByDate,
+  calculateTotalSalesByDate,
   findOrderById,
   markOrderAsPaid,
   markOrderAsDelivered,

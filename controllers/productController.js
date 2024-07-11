@@ -1,6 +1,5 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
-
 const addProduct = asyncHandler(async (req, res) => {
   try {
     const { name, description, price, category, quantity, brand } = req.fields;
@@ -21,6 +20,12 @@ const addProduct = asyncHandler(async (req, res) => {
         return res.json({ error: "Quantity is required" });
     }
 
+    // Check if product name already exists
+    const existingProduct = await Product.findOne({ name });
+    if (existingProduct) {
+      return res.status(400).json({ error: "Product name already exists" });
+    }
+
     const product = new Product({ ...req.fields });
     await product.save();
     res.json(product);
@@ -29,6 +34,7 @@ const addProduct = asyncHandler(async (req, res) => {
     res.status(400).json(error.message);
   }
 });
+
 
 const updateProductDetails = asyncHandler(async (req, res) => {
   try {

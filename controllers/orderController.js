@@ -49,6 +49,16 @@ const createOrder = async (req, res) => {
         throw new Error(`Product not found: ${itemFromClient._id}`);
       }
 
+      const countInStock = matchingItemFromDB.countInStock;
+      const itemQuantity = itemFromClient.qty;
+
+      if (itemQuantity > countInStock) {
+        res.status(400);
+        throw new Error(
+          `Insufficient stock for product: ${itemFromClient._id}`
+        );
+      }
+
       return {
         ...itemFromClient,
         product: itemFromClient._id,
@@ -72,11 +82,24 @@ const createOrder = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+
+    // Update the countInStock for each product
+    for (const item of dbOrderItems) {
+      const product = itemsFromDB.find(
+        (prod) => prod._id.toString() === item.product
+      );
+      if (product) {
+        product.countInStock -= item.qty;
+        await product.save();
+      }
+    }
+
     res.status(201).json(createdOrder);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // controllers/orderController.js
 
